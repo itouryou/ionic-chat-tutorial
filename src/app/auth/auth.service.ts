@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { NavController, AlertController } from '@ionic/angular';
+import { firebaseError } from './firebase.error';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,11 @@ export class AuthService {
     public navController: NavController,
     public alertController: AlertController,
   ) { }
+
+  async getUserId(): Promise<string> {
+    const user = await this.afAuth.currentUser;
+    return user.uid;
+  }
 
   authSignUp(login: { email: string, password: string }) {
     return this.afAuth.createUserWithEmailAndPassword(login.email, login.password)
@@ -41,6 +47,9 @@ export class AuthService {
   }
 
   async alertError(e) {
+    if (firebaseError.hasOwnProperty(e.code)) {
+      e = firebaseError[e.code];
+    }
     const alert = await this.alertController.create({
       header: e.code,
       message: e.message,
